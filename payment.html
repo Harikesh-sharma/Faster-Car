@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm Purchase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .payment-container {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        padding: 2rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+        position: relative;
+      }
+      .header-back-btn {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #333;
+      }
+      .header-back-btn:hover {
+        color: chocolate;
+      }
+      .item-details {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+      }
+      .item-details img {
+        width: 100%;
+        max-width: 250px;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+      .item-details h2 {
+        margin-top: 0;
+      }
+      .item-details table {
+        width: 100%;
+        text-align: left;
+        margin-top: 1rem;
+        border-collapse: collapse;
+      }
+      .item-details th,
+      .item-details td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #eee;
+      }
+      .item-details td {
+        text-align: right;
+        font-weight: bold;
+      }
+      .confirm-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+      .back-link {
+        display: block;
+        margin-top: 1rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+      .success-view {
+        display: none; /* Hidden by default */
+        text-align: center;
+        padding: 2rem 0;
+      }
+      .success-view img {
+        width: 80px;
+        margin-bottom: 1rem;
+      }
+      .success-view h2 {
+        color: #28a745;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+      }
+      /* Custom Modal Styles */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+      .modal-overlay.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+      .modal-box {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 350px;
+        text-align: center;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+      .modal-overlay.visible .modal-box {
+        transform: scale(1);
+        opacity: 1;
+      }
+      .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .modal-buttons button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="payment-container">
+      <div id="confirmation-view">
+        <h1>Confirm Your Purchase</h1>
+        <div class="item-details">
+          <img id="carImage" src="" alt="Car Image" />
+          <h2 id="carName"></h2>
+          <h3 id="carPrice"></h3>
+          <table>
+            <tr>
+              <th>Daily Income</th>
+              <td id="carDaily"></td>
+            </tr>
+            <tr>
+              <th>Cycle</th>
+              <td id="carCycle"></td>
+            </tr>
+            <tr>
+              <th>Total Income</th>
+              <td id="carTotal"></td>
+            </tr>
+          </table>
+        </div>
+        <button class="confirm-btn">Confirm Payment</button>
+      </div>
+      <div id="success-view" class="success-view">
+        <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Success" />
+        <h2>Purchase Successful!</h2>
+        <p>Your order has been placed.</p>
+      </div>
+      <div id="recharge-modal-overlay" class="modal-overlay">
+        <div class="modal-box">
+          <p>Your balance is insufficient. Would you like to recharge your account?</p>
+          <div class="modal-buttons">
+            <button id="recharge-cancel-btn" style="background-color: #6c757d; color: white;">Cancel</button>
+            <button id="recharge-confirm-btn" style="background-color: #007bff; color: white;">Recharge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        // Add back button functionality
+        const backBtn = document.createElement('button');
+        backBtn.innerHTML = '&#x2190;'; // Left arrow
+        backBtn.className = 'header-back-btn';
+        backBtn.onclick = () => window.history.back();
+        document.querySelector('.payment-container').prepend(backBtn);
+
+        // --- Populate Item Details ---
+        const params = new URLSearchParams(window.location.search);
+        const carName = params.get("car");
+        const price = params.get("price");
+        const image = params.get("image");
+        const daily = params.get("daily");
+        const cycle = params.get("cycle");
+        const total = params.get("total");
+
+        const carNameEl = document.getElementById("carName");
+        const carPriceEl = document.getElementById("carPrice");
+        const carImageEl = document.getElementById("carImage");
+        const carDailyEl = document.getElementById("carDaily");
+        const carCycleEl = document.getElementById("carCycle");
+        const carTotalEl = document.getElementById("carTotal");
+
+        if (carName && price) {
+          carNameEl.textContent = carName;
+          carPriceEl.textContent = `Price: ₹${price}`;
+          carImageEl.src = image;
+          carDailyEl.textContent = daily;
+          carCycleEl.textContent = cycle;
+          carTotalEl.textContent = total;
+        } else {
+          carNameEl.textContent = "Item not found";
+          carPriceEl.textContent = "";
+          // Hide other elements if item not found
+          carImageEl.style.display = "none";
+          document.querySelector(".item-details table").style.display = "none";
+        }
+
+        // --- Handle Confirmation Click ---
+        const confirmBtn = document.querySelector(".confirm-btn");
+        const confirmationView = document.getElementById("confirmation-view");
+        const successView = document.getElementById("success-view");
+        const rechargeModal = document.getElementById("recharge-modal-overlay");
+
+        confirmBtn.addEventListener("click", async function () {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/cars/purchase', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token,
+                    },
+                    body: JSON.stringify({ carName: carName }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle specific error for insufficient balance
+                    if (data.message === 'Insufficient balance.') {
+                        rechargeModal.classList.add("visible");
+                    } else {
+                        // Handle other errors like "already purchased" or "invalid car"
+                        alert(`Purchase failed: ${data.message}`);
+                    }
+                    return;
+                }
+
+                // --- Purchase was successful ---
+                confirmationView.style.display = "none";
+                successView.style.display = "block";
+
+            } catch (error) {
+                console.error('Error during purchase:', error);
+                alert('An unexpected error occurred. Please try again.');
+            }
+        });
+      };
+
+      // --- Recharge Modal Logic ---
+      const rechargeModal = document.getElementById("recharge-modal-overlay");
+      const rechargeConfirmBtn = document.getElementById("recharge-confirm-btn");
+      const rechargeCancelBtn = document.getElementById("recharge-cancel-btn");
+
+      rechargeConfirmBtn.addEventListener('click', function() {
+          window.location.href = 'recharge.html';
+      });
+
+      rechargeCancelBtn.addEventListener('click', function() {
+          rechargeModal.classList.remove('visible');
+      });
+    </script>
+  </body>
+</html>

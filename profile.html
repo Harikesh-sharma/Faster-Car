@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .content-container {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        padding: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin-bottom: 2rem;
+      }
+      .header-back-btn {
+        position: absolute;
+        left: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #333;
+      }
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .profile-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #eee;
+      }
+      .user-details {
+        text-align: left;
+      }
+      .user-details #userName {
+        font-size: 1.2rem;
+        font-weight: bold;
+        display: block;
+      }
+      .user-details #userId {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+      .balance-info {
+        display: flex;
+        justify-content: space-around;
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+      }
+      .balance-item {
+        display: flex;
+        flex-direction: column;
+      }
+      .balance-item span {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+      .balance-item strong {
+        font-size: 1.3rem;
+        color: #333;
+      }
+      .menu-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: left;
+        margin-bottom: 2rem;
+      }
+      .menu-item {
+        display: block;
+        padding: 1rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+      .menu-item:hover {
+        background-color: #f0f0f0;
+      }
+      .sign-out-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #dc3545;
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1rem;
+      }
+      .back-link {
+        display: block;
+        margin-top: 1rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+      .my-cars-section {
+        text-align: left;
+        margin-bottom: 2rem;
+      }
+      .my-cars-section h3 {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      #my-cars-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .purchased-car-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+        border-left: 5px solid chocolate;
+      }
+      .purchased-car-item .car-name {
+        font-weight: bold;
+      }
+      .purchased-car-item .purchase-date {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+      .no-cars-message {
+        text-align: center;
+        color: #6c757d;
+        padding: 1rem;
+      }
+      /* Custom Modal Styles */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+      .modal-overlay.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+      .modal-box {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 350px;
+        text-align: center;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+      .modal-overlay.visible .modal-box {
+        transform: scale(1);
+        opacity: 1;
+      }
+      .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .modal-buttons button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+      /* --- Loading Spinner Styles --- */
+      .spinner-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+      .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid chocolate;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .content-hidden {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Spinner Overlay -->
+    <div id="loading-spinner-overlay" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="content-container content-hidden" id="contentContainer">
+      <div class="page-header">
+        <button id="backBtn" class="header-back-btn">&#x2190;</button>
+        <h1>My Profile</h1>
+      </div>
+
+      <div class="profile-header">
+        <img
+          src="https://cdn.worldvectorlogo.com/logos/ferrari-logo.svg"
+          alt="Profile"
+          class="profile-avatar"
+        />
+        <div class="user-details">
+          <span id="userName">User Name</span>
+          <span id="userId">ID: 9876543210</span>
+        </div>
+      </div>
+
+      <div class="balance-info">
+        <div class="balance-item">
+          <span>Balance</span>
+          <strong>₹0.00</strong>
+        </div>
+        <div class="balance-item">
+          <span>Withdrawable</span>
+          <strong>₹0.00</strong>
+        </div>
+      </div>
+
+      <div class="menu-list">
+        <a href="bank-settings.html" class="menu-item">Bank Settings</a>
+        <a href="income-details.html" class="menu-item">Income Details</a>
+        <a href="account-records.html" class="menu-item">Account Records</a>
+        <a href="company.html" class="menu-item">Company</a>
+      </div>
+
+      <button id="sign-out-main-btn" class="sign-out-btn">Sign Out</button>
+    </div>
+
+    <!-- Custom Sign Out Confirmation Modal -->
+    <div id="signout-confirm-overlay" class="modal-overlay">
+      <div class="modal-box">
+        <p>Are you sure you want to sign out?</p>
+        <div class="modal-buttons">
+          <button
+            id="confirm-cancel-btn"
+            style="background-color: #6c757d; color: white"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirm-signout-btn"
+            style="background-color: #dc3545; color: white"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        const spinnerOverlay = document.getElementById(
+          "loading-spinner-overlay"
+        );
+        const contentContainer = document.getElementById("contentContainer");
+        const token = localStorage.getItem("token");
+
+        document.getElementById("backBtn").onclick = () =>
+          (window.location.href = "dashboard.html");
+
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:5000/api/user/data", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "x-auth-token": token,
+            },
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              localStorage.removeItem("token");
+              window.location.href = "login.html";
+            }
+            throw new Error("Failed to fetch user data");
+          }
+
+          const data = await response.json();
+          const { user } = data;
+
+          // Update profile details
+          document.getElementById("userName").textContent = user.fullName;
+          document.getElementById(
+            "userId"
+          ).textContent = `ID: ${user.mobileNumber}`;
+
+          // Update balance display
+          const balanceStrong = document.querySelector(
+            ".balance-info .balance-item:nth-child(1) strong"
+          );
+          const withdrawableStrong = document.querySelector(
+            ".balance-info .balance-item:nth-child(2) strong"
+          );
+          balanceStrong.textContent = `₹${parseFloat(user.balance).toFixed(2)}`;
+          withdrawableStrong.textContent = `₹${parseFloat(
+            user.earnings
+          ).toFixed(2)}`;
+        } catch (error) {
+          console.error("Error:", error);
+        } finally {
+          // Hide spinner and show content, regardless of success or failure
+          spinnerOverlay.style.display = "none";
+          contentContainer.classList.remove("content-hidden");
+        }
+
+        const signOutMainBtn = document.getElementById("sign-out-main-btn");
+        const overlay = document.getElementById("signout-confirm-overlay");
+        const cancelBtn = document.getElementById("confirm-cancel-btn");
+        const signOutConfirmBtn = document.getElementById(
+          "confirm-signout-btn"
+        );
+
+        signOutMainBtn.addEventListener("click", function () {
+          overlay.classList.add("visible");
+        });
+
+        signOutConfirmBtn.addEventListener("click", function () {
+          // Clear the authentication token
+          localStorage.removeItem("token");
+
+          // Redirect to the login page
+          window.location.href = "login.html";
+        });
+
+        cancelBtn.addEventListener("click", function () {
+          overlay.classList.remove("visible");
+        });
+
+        overlay.addEventListener("click", function (event) {
+          if (event.target === overlay) overlay.classList.remove("visible");
+        });
+      });
+    </script>
+  </body>
+</html>

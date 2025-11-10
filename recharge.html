@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recharge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .content-container {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        padding: 2rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: left;
+        position: relative;
+        /* Add flex properties for smooth view transition */
+        display: flex;
+        flex-direction: column;
+        transition: min-height 0.4s ease;
+      }
+      .header-back-btn {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #333;
+      }
+      .header-back-btn:hover {
+        color: chocolate;
+      }
+      h1,
+      h5 {
+        text-align: center;
+        margin-top: 0;
+      }
+      .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+      }
+      #customAmount {
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .recharge-btn {
+        padding: 1rem;
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: background-color 0.2s;
+        margin-top: 1rem;
+      }
+      .recharge-btn:hover {
+        background-color: #218838;
+      }
+      .balance-display {
+        text-align: center;
+        margin: 1rem 0 2rem 0;
+      }
+      .balance-display span {
+        color: #6c757d;
+      }
+      .balance-display strong {
+        display: block;
+        font-size: 2.5rem;
+        color: #333;
+      }
+      .amount-selection {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .amount-btn {
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #f9f9f9;
+        cursor: pointer;
+        text-align: center;
+        transition: background-color 0.3s ease, color 0.3s ease,
+          border-color 0.3s ease;
+      }
+      .amount-btn.active {
+        background-color: chocolate;
+        color: white;
+        border-color: chocolate;
+        font-weight: bold;
+      }
+      .payment-methods {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .payment-method {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+      }
+      .payment-method.active {
+        border-color: chocolate;
+        border-width: 2px;
+      }
+      .payment-method input[type="radio"] {
+        margin-right: 1rem;
+      }
+      .payment-icon {
+        width: 30px;
+        height: 30px;
+        margin-right: 1rem;
+      }
+      .charging-rules {
+        margin-top: 2rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 8px;
+      }
+      .success-view {
+        display: none; /* Hidden by default */
+        text-align: center;
+        padding: 2rem 0;
+      }
+      .success-view img {
+        width: 80px;
+        margin-bottom: 1rem;
+      }
+      .success-view h2 {
+        color: #28a745;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+      }
+      .back-link {
+        display: block;
+        margin-top: 1rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-container">
+      <div id="recharge-view">
+        <h5>Recharge</h5>
+
+        <div class="balance-display">
+          <span>Current Balance</span>
+          <strong>₹1,250.00</strong>
+        </div>
+
+        <div>
+          <h5 class="section-title">Select Amount</h5>
+          <div class="amount-selection">
+            <button class="amount-btn" data-amount="275">₹275</button>
+            <button class="amount-btn" data-amount="499">₹499</button>
+            <button class="amount-btn" data-amount="2800">₹2800</button>
+            <button class="amount-btn" data-amount="7800">₹7800</button>
+            <button class="amount-btn" data-amount="111000">₹111000</button>
+          </div>
+          <input
+            type="number"
+            id="customAmount"
+            placeholder="Or enter a custom amount"
+          />
+        </div>
+
+        <div style="margin-top: 2rem">
+          <h5 class="section-title">Payment Method</h5>
+          <div class="payment-methods">
+            <label class="payment-method active">
+              <input type="radio" name="paymentMethod" value="paytm" checked />
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/825/825454.png"
+                alt="PayTM"
+                class="payment-icon"
+              />
+              <span>PayTM</span>
+            </label>
+            <label class="payment-method">
+              <input type="radio" name="paymentMethod" value="upi" />
+              <img
+                src="https://cdn.icon-icons.com/icons2/2699/PNG/512/upi_logo_icon_169316.png"
+                alt="UPI"
+                class="payment-icon"
+              />
+              <span>UPI</span>
+            </label>
+          </div>
+        </div>
+
+        <button id="rechargeBtn" class="recharge-btn" type="button">
+          Recharge
+        </button>
+
+        <div class="charging-rules">
+          <strong>Charging Rules:</strong>
+          <ul>
+            <li>Minimum recharge amount is ₹275.</li>
+            <li>
+              Recharge amounts are processed instantly but may take up to 5
+              minutes to reflect in your balance.
+            </li>
+            <li>
+              Please do not close the payment window until the transaction is
+              complete.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="success-view" class="success-view">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/190/190411.png"
+          alt="Success"
+        />
+        <h2>Recharge Initiated!</h2>
+        <p id="success-message"></p>
+        <a href="dashboard.html" class="back-link">Go to Dashboard</a>
+      </div>
+
+      <!-- This empty div will be used to center the success message -->
+      <div id="flex-spacer" style="flex-grow: 1; display: none"></div>
+    </div>
+
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        // Add back button functionality
+        const backBtn = document.createElement("button");
+        backBtn.innerHTML = "&#x2190;"; // Left arrow
+        backBtn.className = "header-back-btn";
+        backBtn.onclick = () => (window.location.href = "dashboard.html");
+        document.querySelector(".content-container").prepend(backBtn);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+        const amountButtons = document.querySelectorAll(".amount-btn");
+        const customAmountInput = document.getElementById("customAmount");
+        const paymentMethods = document.querySelectorAll(".payment-method");
+        const rechargeBtn = document.getElementById("rechargeBtn");
+        const rechargeView = document.getElementById("recharge-view");
+        const successView = document.getElementById("success-view");
+        const flexSpacer = document.getElementById("flex-spacer");
+        const balanceDisplay = document.querySelector(
+          ".balance-display strong"
+        );
+
+        // Fetch and display current balance from backend
+        try {
+          const response = await fetch("http://localhost:5000/api/user/data", {
+            headers: { "x-auth-token": token },
+          });
+          if (!response.ok) throw new Error("Could not fetch balance.");
+          const data = await response.json();
+          balanceDisplay.textContent = `₹${parseFloat(
+            data.user.balance
+          ).toFixed(2)}`;
+        } catch (error) {
+          console.error(error);
+          balanceDisplay.textContent = "Error";
+        }
+
+        amountButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            // Set the custom amount input with the button's value
+            customAmountInput.value = this.dataset.amount;
+            // Highlight the active button
+            amountButtons.forEach((btn) => btn.classList.remove("active"));
+            this.classList.add("active");
+          });
+        });
+
+        // Deselect amount buttons when typing a custom amount
+        customAmountInput.addEventListener("input", function () {
+          amountButtons.forEach((btn) => btn.classList.remove("active"));
+        });
+
+        // Handle payment method selection
+        paymentMethods.forEach((method) => {
+          method.addEventListener("click", function () {
+            // Remove active class from all payment methods
+            paymentMethods.forEach((m) => m.classList.remove("active"));
+            // Add active class to the clicked one
+            this.classList.add("active");
+            // Ensure the radio button inside is checked
+            this.querySelector('input[type="radio"]').checked = true;
+          });
+        });
+
+        // Handle recharge button click
+        rechargeBtn.addEventListener("click", async function () {
+          const amount = parseFloat(customAmountInput.value);
+          const paymentMethod = document.querySelector(
+            'input[name="paymentMethod"]:checked'
+          ).value;
+
+          if (!amount || amount <= 0) {
+            alert("Please select or enter a valid recharge amount.");
+            return;
+          }
+
+          // --- Step 1: Create Order on Backend ---
+          const orderResponse = await fetch('http://localhost:5000/api/payment/create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+              body: JSON.stringify({ amount: amount })
+          });
+
+          if (!orderResponse.ok) {
+              alert('Could not create payment order. Please try again.');
+              return;
+          }
+
+          const orderData = await orderResponse.json();
+
+          // --- Step 2: Open Razorpay Checkout ---
+          const options = {
+              key: 'rzp_test_R9gu7rbC2p8saU', // This should be your Razorpay Key ID
+              amount: orderData.amount,
+              currency: orderData.currency,
+              name: 'Faster Car',
+              description: `Recharge of ₹${amount}`,
+              order_id: orderData.id,
+              handler: async function (response) {
+                  // --- Step 3: Verify Payment on Backend ---
+                  try {
+                      const verificationResponse = await fetch('http://localhost:5000/api/payment/verify-payment', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                          body: JSON.stringify({
+                              razorpay_order_id: response.razorpay_order_id,
+                              razorpay_payment_id: response.razorpay_payment_id,
+                              razorpay_signature: response.razorpay_signature,
+                              amount: amount // Pass the original amount for balance update
+                          })
+                      });
+
+                      const verificationData = await verificationResponse.json();
+                      if (!verificationResponse.ok) {
+                          throw new Error(verificationData.message || 'Payment verification failed.');
+                      }
+
+                      // --- Step 4: Show Success on Frontend ---
+                      rechargeView.style.display = "none";
+                      document.getElementById("success-message").textContent = `Successfully recharged ₹${amount}!`;
+                      successView.style.display = "block";
+                      flexSpacer.style.display = "block";
+                      document.querySelector(".content-container").style.justifyContent = "center";
+                      balanceDisplay.textContent = `₹${parseFloat(verificationData.newBalance).toFixed(2)}`;
+
+                  } catch (error) {
+                      alert(`Error: ${error.message}`);
+                  }
+              },
+              prefill: {
+                  // You can prefill user data here if you have it
+                  // name: "User Name",
+                  // email: "user@example.com",
+                  // contact: "9999999999"
+              },
+              theme: {
+                  color: '#D2691E' // Chocolate color
+              }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+        });
+      });
+    </script>
+  </body>
+</html>

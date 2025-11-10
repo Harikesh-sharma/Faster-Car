@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Records</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .content-container {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        padding: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .records-list-section {
+        text-align: left;
+      }
+      .records-list-section h3 {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      #records-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-height: 80vh;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 0.5rem;
+      }
+      .record-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f9f9f9;
+        border-radius: 4px;
+      }
+      .record-item .details .type {
+        font-weight: bold;
+      }
+      .record-item .details .date {
+        font-size: 0.8rem;
+        color: #6c757d;
+      }
+      .record-item .details .extra-info {
+        font-size: 0.8rem;
+        color: #555;
+        display: block;
+        margin-top: 4px;
+      }
+      .record-item .amount { font-weight: bold; }
+      .record-item .amount.positive { color: #28a745; }
+      .record-item .amount.negative { color: #dc3545; }
+      .no-records-message { text-align: center; color: #6c757d; padding: 1rem; }
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-container">
+      <h1>Account Records</h1>
+
+      <div class="records-list-section">
+        <div id="records-list">
+          <!-- Transaction records will be dynamically inserted here -->
+        </div>
+      </div>
+
+      <a href="profile.html" class="back-link">Back to Profile</a>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const recordsList = document.getElementById("records-list");
+
+        try {
+            const response = await fetch('http://localhost:5000/api/user/data', { headers: { 'x-auth-token': token } });
+            const data = await response.json();
+            const myTransactions = data.transactions || [];
+
+            if (myTransactions.length > 0) {
+                myTransactions.forEach((tx) => {
+                    const recordItem = document.createElement("div");
+                    recordItem.classList.add("record-item");
+
+                    let extraInfo = '';
+                    if (tx.details?.carName) {
+                        extraInfo = `<span class="extra-info">${tx.details.carName}</span>`;
+                    } else if (tx.details?.from) {
+                        extraInfo = `<span class="extra-info">From: ${tx.details.from}</span>`;
+                    }
+
+                    let amountClass = '';
+                    let amountPrefix = '';
+                    if (['Recharge', 'Referral Bonus', 'Daily Income'].includes(tx.type)) {
+                        amountClass = 'positive';
+                        amountPrefix = '+';
+                    } else {
+                        amountClass = 'negative';
+                        amountPrefix = '-';
+                    }
+
+                    recordItem.innerHTML = `
+                        <div class="details">
+                            <span class="type">${tx.type}</span>
+                            ${extraInfo}
+                            <br><span class="date">${new Date(tx.date).toLocaleString()}</span>
+                        </div>
+                        <span class="amount ${amountClass}">${amountPrefix}₹${parseFloat(tx.amount).toFixed(2)}</span>
+                    `;
+                    recordsList.appendChild(recordItem);
+                });
+            } else {
+                recordsList.innerHTML = '<p class="no-records-message">No records found.</p>';
+            }
+        } catch (error) {
+            console.error('Failed to load records', error);
+            recordsList.innerHTML = '<p class="no-records-message">Could not load records.</p>';
+        }
+      });
+    </script>
+  </body>
+</html>

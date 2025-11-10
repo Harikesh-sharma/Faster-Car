@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- The viewport meta tag is crucial for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faster Car</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem; /* Adds space between the car image and the icon bar */
+        width: 100%;
+        max-width: 480px; /* Typical mobile screen width */
+        background: white;
+        padding: 1rem 0;
+        padding-bottom: 80px; /* Add padding to avoid overlap with fixed footer */
+      }
+      .redcar {
+        width: 18rem;
+        height: 12rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+      }
+      .redcar:hover {
+        transform: scale(1.05);
+      }
+      .icon-bar {
+        display: flex;
+        gap: 1.5rem; /* Space between icons */
+        justify-content: center;
+        align-items: center;
+      }
+      .icon-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        text-decoration: none; /* Remove underline from links */
+        color: inherit; /* Make link text color same as body text */
+      }
+      .icon-item img {
+        width: 30px;
+        height: 30px;
+      }
+      .dailyincome {
+        height: 3rem;
+        width: 9rem;
+        color: #ffff;
+        background-color: chocolate;
+        font-weight: bold;
+        display: inline;
+      }
+      .daily {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0 1rem;
+        box-sizing: border-box;
+      }
+      h5 {
+        background: chocolate;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+      }
+      .car-profit-item {
+        width: 95%;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .item-body {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        gap: 1rem;
+      }
+      .download {
+        width: 10rem;
+        height: 6rem;
+        object-fit: cover;
+        border-radius: 4px;
+        transition: transform 0.3s ease;
+      }
+      .download:hover {
+        transform: scale(1.05);
+      }
+      table {
+        border-collapse: collapse;
+      }
+      table th {
+        text-align: left;
+        padding: 0.2rem 0.5rem;
+      }
+      table th:last-child {
+        text-align: right;
+        font-weight: normal;
+      }
+      .buy-now-btn {
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        background-color: #28a745; /* A nice green for a 'buy' button */
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s;
+      }
+      .buy-now-btn:hover {
+        background-color: #218838; /* A darker green on hover */
+      }
+      .footer {
+        position: fixed;
+        bottom: 0;
+        /* Center footer within the mobile view width */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 480px;
+        background: #fff;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-around;
+        padding: 0.5rem 0;
+        border-top: 1px solid #eee;
+      }
+      .footer .icon-item img {
+        width: 24px;
+        height: 24px;
+      }
+      .footer .icon-item span {
+        font-size: 0.8rem;
+      }
+      /* Style for the active footer item */
+      .footer .icon-item.active {
+        color: chocolate;
+        font-weight: bold;
+      }
+      .footer .icon-item.active img {
+        /* A filter to approximate the 'chocolate' color */
+        filter: invert(50%) sepia(80%) saturate(500%) hue-rotate(345deg) brightness(95%) contrast(90%);
+      }
+
+      /* Custom Modal Styles */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+      .modal-overlay.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-box {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        width: 90%;
+        max-width: 350px;
+        text-align: center;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+      .modal-overlay.visible .modal-box {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .modal-box p {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        line-height: 1.5;
+      }
+
+      .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+      }
+
+      .modal-buttons button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container" id="mainContainer">
+      <img src="../download (1).jpeg" alt="Red sports car" class="redcar" />
+      <div class="icon-bar">
+        <a href="recharge.html" class="icon-item">
+          <img
+            src="https://static.thenounproject.com/png/3313555-200.png"
+            alt="Recharge Logo"
+          /><span>Recharge</span>
+        </a>
+        <a href="withdrawal.html" class="icon-item">
+          <img
+            src="https://static.thenounproject.com/png/41954-200.png"
+            alt="Withdrawal Logo"
+          /><span>Withdrawal</span>
+        </a>
+      </div>
+
+      <!-- Car Profit Item 1 -->
+      <div class="car-profit-item">
+        <div class="daily">
+          <h4>Daily profit car #1</h4>
+          <h5>Price: ₹275</h5>
+        </div>
+        <div class="item-body">
+          <img class="download" src="../download (2).jpeg" alt="Profit Car" />
+          <table>
+            <tr>
+              <th>Daily:</th>
+              <th>₹55</th>
+            </tr>
+            <tr>
+              <th>Cycle:</th>
+              <th>365 Days</th>
+            </tr>
+            <tr>
+              <th>Total:</th>
+              <th>₹20075</th>
+            </tr>
+          </table>
+        </div>
+        <a
+          href="payment.html"
+          class="buy-link"
+          data-name="Daily profit car #1"
+          data-price="275"
+          data-image="../download (2).jpeg"
+          data-daily="₹55"
+          data-cycle="365 Days"
+          data-total="₹20075"><button class="buy-now-btn">Buy Now</button>
+        </a>
+      </div>
+
+      <!-- Car Profit Item 2 -->
+      <div class="car-profit-item">
+        <div class="daily">
+          <h4>Daily profit car #2</h4>
+          <h5>Price: ₹499</h5>
+        </div>
+        <div class="item-body">
+          <img class="download" src="../download (3).jpeg" alt="Profit Car" />
+          <table>
+            <tr>
+              <th>Daily:</th>
+              <th>₹110</th>
+            </tr>
+            <tr>
+              <th>Cycle:</th>
+              <th>365 Days</th>
+            </tr>
+            <tr>
+              <th>Total:</th>
+              <th>₹40150</th>
+            </tr>
+          </table>
+        </div>
+        <a
+          href="payment.html"
+          class="buy-link"
+          data-name="Daily profit car #2"
+          data-price="499"
+          data-image="../download (3).jpeg"
+          data-daily="₹110"
+          data-cycle="365 Days"
+          data-total="₹40150"><button class="buy-now-btn">Buy Now</button>
+        </a>
+      </div>
+
+      <!-- Car Profit Item 3 -->
+      <div class="car-profit-item">
+        <div class="daily">
+          <h4>Daily profit car #3</h4>
+          <h5>Price: ₹2800</h5>
+        </div>
+        <div class="item-body">
+          <img class="download" src="../download (4).jpeg" alt="Profit Car" />
+          <table>
+            <tr>
+              <th>Daily:</th>
+              <th>₹145</th>
+            </tr>
+            <tr>
+              <th>Cycle:</th>
+              <th>365 Days</th>
+            </tr>
+            <tr>
+              <th>Total:</th>
+              <th>₹52925</th>
+            </tr>
+          </table>
+        </div>
+        <a
+          href="payment.html"
+          class="buy-link"
+          data-name="Daily profit car #3"
+          data-price="2800"
+          data-image="../download (4).jpeg"
+          data-daily="₹145"
+          data-cycle="365 Days"
+          data-total="₹52925"><button class="buy-now-btn">Buy Now</button>
+        </a>
+      </div>
+
+      <!-- Car Profit Item 4 -->
+      <div class="car-profit-item">
+        <div class="daily">
+          <h4>Daily profit car #4</h4>
+          <h5>Price: ₹7800</h5>
+        </div>
+        <div class="item-body">
+          <img class="download" src="../images.jpeg" alt="Profit Car" />
+          <table>
+            <tr>
+              <th>Daily:</th>
+              <th>₹1100</th>
+            </tr>
+            <tr>
+              <th>Cycle:</th>
+              <th>365 Days</th>
+            </tr>
+            <tr>
+              <th>Total:</th>
+              <th>₹401500</th>
+            </tr>
+          </table>
+        </div>
+        <a
+          href="payment.html"
+          class="buy-link"
+          data-name="Daily profit car #4"
+          data-price="7800"
+          data-image="../images.jpeg"
+          data-daily="₹1100"
+          data-cycle="365 Days"
+          data-total="₹401500"><button class="buy-now-btn">Buy Now</button>
+        </a>
+      </div>
+
+      <!-- Car Profit Item 5 -->
+      <div class="car-profit-item">
+        <div class="daily">
+          <h4>Daily profit car #5</h4>
+          <h5>Price: ₹111000</h5>
+        </div>
+        <div class="item-body">
+          <img class="download" src="../images (1).jpeg" alt="Profit Car" />
+          <table>
+            <tr>
+              <th>Daily:</th>
+              <th>₹2400</th>
+            </tr>
+            <tr>
+              <th>Cycle:</th>
+              <th>365 Days</th>
+            </tr>
+            <tr>
+              <th>Total:</th>
+              <th>₹876000</th>
+            </tr>
+          </table>
+        </div>
+        <a
+          href="payment.html"
+          class="buy-link"
+          data-name="Daily profit car #5"
+          data-price="111000"
+          data-image="../images (1).jpeg"
+          data-daily="₹2400"
+          data-cycle="365 Days"
+          data-total="₹876000"><button class="buy-now-btn">Buy Now</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="custom-confirm-overlay" class="modal-overlay">
+      <div id="custom-confirm-modal" class="modal-box">
+        <p id="confirm-msg"></p>
+        <div class="modal-buttons">
+          <button id="confirm-cancel-btn" style="background-color: #6c757d; color: white;">Cancel</button>
+          <button id="confirm-ok-btn" style="background-color: #28a745; color: white;">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="footer">
+        <a href="#" class="icon-item active">
+          <img src="https://cdn-icons-png.flaticon.com/512/126/126486.png" alt="Home"/>
+          <span>Home</span>
+        </a>
+        <a href="team.html" class="icon-item">
+          <img src="https://cdn-icons-png.flaticon.com/512/33/33308.png" alt="Team"/>
+          <span>Team</span>
+        </a>
+        <a href="#" class="icon-item">
+          <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Profile"/>
+          <span>Profile</span>
+        </a>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // --- Footer Logic ---
+        const footerItems = document.querySelectorAll('.footer .icon-item');
+
+        footerItems.forEach(item => {
+          item.addEventListener('click', function(event) {
+            // Remove 'active' class from all items
+            footerItems.forEach(i => i.classList.remove('active'));
+            // Add 'active' class to the clicked item
+            this.classList.add('active');
+          });
+        });
+
+        // --- Custom Confirmation Modal Logic ---
+        const overlay = document.getElementById('custom-confirm-overlay');
+        const confirmMsg = document.getElementById('confirm-msg');
+        const okBtn = document.getElementById('confirm-ok-btn');
+        const cancelBtn = document.getElementById('confirm-cancel-btn');
+        const buyLinks = document.querySelectorAll('.buy-link');
+
+        let navigateUrl = '';
+
+        buyLinks.forEach(link => {
+          link.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent immediate navigation
+
+            const name = this.dataset.name;
+            const price = this.dataset.price;
+            const image = this.dataset.image;
+            const daily = this.dataset.daily;
+            const cycle = this.dataset.cycle;
+            const total = this.dataset.total;
+
+            confirmMsg.textContent = `Confirm purchase of ${name} for ₹${price}?`;
+            
+            const params = new URLSearchParams({
+              car: name,
+              price: price,
+              image: image,
+              daily: daily,
+              cycle: cycle,
+              total: total,
+            });
+            navigateUrl = `payment.html?${params.toString()}`;
+            overlay.classList.add('visible');
+          });
+        });
+
+        okBtn.addEventListener('click', function() {
+          window.location.href = navigateUrl;
+        });
+
+        cancelBtn.addEventListener('click', function() {
+          overlay.classList.remove('visible');
+        });
+
+        overlay.addEventListener('click', function(event) {
+            if (event.target === overlay) overlay.classList.remove('visible');
+        });
+      });
+    </script>
+  </body>
+</html>

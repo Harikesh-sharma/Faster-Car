@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Team</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .content-container {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        padding: 2rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+        position: relative;
+      }
+      .header-back-btn {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #333;
+      }
+      .header-back-btn:hover {
+        color: chocolate;
+      }
+      .referral-section {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+      }
+      .referral-section h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      .referral-item {
+        margin-bottom: 1.5rem;
+      }
+      .referral-item label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        text-align: left;
+      }
+      .referral-value-wrapper {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .referral-value {
+        flex-grow: 1;
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #f9f9f9;
+        font-size: 0.9rem;
+        text-align: left;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .copy-btn {
+        padding: 0.75rem;
+        background-color: chocolate;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .team-list-section {
+        margin-top: 3rem;
+        text-align: left;
+      }
+      .team-list-section h3 {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      #team-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 0.5rem;
+      }
+      .team-member-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f9f9f9;
+        border-radius: 4px;
+      }
+      .team-member-item .details .name {
+        font-weight: bold;
+      }
+      .team-member-item .details .date {
+        font-size: 0.8rem;
+        color: #6c757d;
+      }
+      .no-team-message { text-align: center; color: #6c757d; padding: 1rem; }
+      .back-link {
+        display: block;
+        margin-top: 1rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-container">
+      <h1>My Team</h1>
+      <div class="referral-section">
+        <h3>Invite Friends & Earn</h3>
+        <div class="referral-item">
+          <label for="refCode">Your Referral Code:</label>
+          <div class="referral-value-wrapper">
+            <div id="refCode" class="referral-value"></div>
+            <button class="copy-btn" data-copy-target="refCode">Copy</button>
+          </div>
+        </div>
+        <div class="referral-item">
+          <label for="refLink">Your Referral Link:</label>
+          <div class="referral-value-wrapper">
+            <div id="refLink" class="referral-value"></div>
+            <button class="copy-btn" data-copy-target="refLink">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-list-section">
+        <h3>My Team Members</h3>
+        <div id="team-list">
+          <!-- Team members will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        // Add back button functionality
+        const backBtn = document.createElement('button');
+        backBtn.innerHTML = '&#x2190;'; // Left arrow
+        backBtn.className = 'header-back-btn';
+        backBtn.onclick = () => window.location.href = 'dashboard.html';
+        document.querySelector('.content-container').prepend(backBtn);
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            // Fetch user's own data to get their mobile number for the ref code
+            const userDataRes = await fetch('http://localhost:5000/api/user/data', { headers: { 'x-auth-token': token } });
+            const userData = await userDataRes.json();
+            const refCode = userData.user.mobileNumber;
+            const refLink = `${window.location.origin}/register.html?ref=${refCode}`;
+            document.getElementById("refCode").textContent = refCode;
+            document.getElementById("refLink").textContent = refLink;
+
+            // Fetch team data
+            const teamDataRes = await fetch('http://localhost:5000/api/user/team', { headers: { 'x-auth-token': token } });
+            const myTeam = await teamDataRes.json();
+            const teamList = document.getElementById("team-list");
+
+            if (myTeam.length > 0) {
+                myTeam.forEach((member) => {
+                    const memberItem = document.createElement("div");
+                    memberItem.classList.add("team-member-item");
+                    memberItem.innerHTML = `
+                        <div class="details">
+                            <span class="name">${member.fullName}</span><br>
+                            <span class="date">Joined: ${new Date(member.createdAt).toLocaleDateString()}</span>
+                        </div>`;
+                    teamList.appendChild(memberItem);
+                });
+            } else {
+                teamList.innerHTML = '<p class="no-team-message">You have not referred anyone yet.</p>';
+            }
+        } catch (error) {
+            console.error('Failed to load team data', error);
+            document.getElementById("team-list").innerHTML = '<p class="no-team-message">Could not load team data.</p>';
+        }
+
+        // --- Add copy functionality ---
+        document.querySelectorAll(".copy-btn").forEach((button) => {
+          button.addEventListener("click", function () {
+            const targetId = this.dataset.copyTarget;
+            const textToCopy = document.getElementById(targetId).textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+              alert(`Copied to clipboard: ${textToCopy}`);
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

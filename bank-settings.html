@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bank & Security</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .content-container {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        padding: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .settings-section {
+        text-align: left;
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border-left: 4px solid chocolate;
+      }
+      .settings-section h3 {
+        margin-top: 0;
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+      .settings-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .settings-form label {
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+      .settings-form input {
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+      .settings-form button {
+        padding: 0.75rem;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+      }
+      .back-link {
+        display: block;
+        margin-top: 1rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+      .feedback-message {
+        padding: 0.5rem; border-radius: 4px; margin-top: 1rem; text-align: center; display: none; font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-container">
+      <h1>Bank & Security Settings</h1>
+
+      <!-- Bank Details Section -->
+      <div class="settings-section">
+        <h3>My Bank Details</h3>
+        <form id="bankDetailsForm" class="settings-form">
+          <label for="accountNumber">Bank Account Number:</label>
+          <input type="text" id="accountNumber" placeholder="Enter account number" required />
+          <label for="ifscCode">IFSC Code:</label>
+          <input type="text" id="ifscCode" placeholder="Enter IFSC code" required />
+          <button type="submit">Save Bank Details</button>
+          <div id="bankFeedback" class="feedback-message"></div>
+        </form>
+      </div>
+
+      <!-- Change Login Password Section -->
+      <div class="settings-section">
+        <h3>Change Login Password</h3>
+        <form id="loginPasswordForm" class="settings-form">
+          <label for="currentLoginPassword">Current Password:</label>
+          <input type="password" id="currentLoginPassword" required />
+          <label for="newLoginPassword">New Password:</label>
+          <input type="password" id="newLoginPassword" required />
+          <label for="confirmNewLoginPassword">Confirm New Password:</label>
+          <input type="password" id="confirmNewLoginPassword" required />
+          <button type="submit">Update Login Password</button>
+          <div id="loginPwFeedback" class="feedback-message"></div>
+        </form>
+      </div>
+
+      <!-- Change Withdrawal Password Section -->
+      <div class="settings-section">
+        <h3>Set/Change Withdrawal Password</h3>
+        <form id="withdrawalPasswordForm" class="settings-form">
+          <label for="currentLoginPwForWithdrawal">Current Login Password:</label>
+          <input type="password" id="currentLoginPwForWithdrawal" placeholder="Enter login password to authorize" required />
+          <label for="newWithdrawalPassword">New Withdrawal Password:</label>
+          <input type="password" id="newWithdrawalPassword" required />
+          <label for="confirmNewWithdrawalPassword">Confirm New Password:</label>
+          <input type="password" id="confirmNewWithdrawalPassword" required />
+          <button type="submit">Update Withdrawal Password</button>
+          <div id="withdrawalPwFeedback" class="feedback-message"></div>
+        </form>
+      </div>
+
+      <a href="profile.html" class="back-link">Back to Profile</a>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "login.html"; // Redirect if not logged in
+          return;
+        }
+
+        // Helper to show feedback
+        function showFeedback(element, message, isError = false) {
+            element.textContent = message;
+            element.style.display = 'block';
+            element.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+            element.style.color = isError ? '#721c24' : '#155724';
+        }
+
+        // --- Bank Details Logic ---
+        const bankForm = document.getElementById("bankDetailsForm");
+        const bankFeedback = document.getElementById("bankFeedback");
+        const accountNumberInput = document.getElementById("accountNumber");
+        const ifscCodeInput = document.getElementById("ifscCode");
+
+        // Pre-fill bank details from backend
+        try {
+            const response = await fetch('http://localhost:5000/api/user/data', { headers: { 'x-auth-token': token } });
+            const data = await response.json();
+            if (data.user && data.user.bankDetails) {
+                accountNumberInput.value = data.user.bankDetails.account || '';
+                ifscCodeInput.value = data.user.bankDetails.ifsc || '';
+            }
+        } catch (error) {
+            console.error('Failed to fetch bank details', error);
+        }
+
+        bankForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            try {
+                const response = await fetch('http://localhost:5000/api/user/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({
+                        accountNumber: accountNumberInput.value,
+                        ifscCode: ifscCodeInput.value
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message);
+                }
+                showFeedback(bankFeedback, data.message);
+            } catch (error) {
+                showFeedback(bankFeedback, error.message, true);
+            }
+        });
+
+
+        // --- Change Login Password Logic ---
+        const loginPwForm = document.getElementById("loginPasswordForm");
+        const loginPwFeedback = document.getElementById("loginPwFeedback");
+
+        loginPwForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const currentPw = document.getElementById("currentLoginPassword").value;
+            const newPw = document.getElementById("newLoginPassword").value;
+            const confirmNewPw = document.getElementById("confirmNewLoginPassword").value;
+
+            if (newPw !== confirmNewPw) {
+                showFeedback(loginPwFeedback, "New passwords do not match.", true);
+                return;
+            }
+            if (newPw.length < 4) { // Basic validation
+                showFeedback(loginPwFeedback, "Password must be at least 4 characters.", true);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/user/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({
+                        currentLoginPassword: currentPw,
+                        newLoginPassword: newPw
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message);
+                showFeedback(loginPwFeedback, data.message);
+                loginPwForm.reset();
+            } catch (error) {
+                showFeedback(loginPwFeedback, error.message, true);
+            }
+        });
+
+
+        // --- Change Withdrawal Password Logic ---
+        const withdrawalPwForm = document.getElementById("withdrawalPasswordForm");
+        const withdrawalPwFeedback = document.getElementById("withdrawalPwFeedback");
+
+        withdrawalPwForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const loginPw = document.getElementById("currentLoginPwForWithdrawal").value;
+            const newWithdrawalPw = document.getElementById("newWithdrawalPassword").value;
+            const confirmNewWithdrawalPw = document.getElementById("confirmNewWithdrawalPassword").value;
+
+            if (newWithdrawalPw !== confirmNewWithdrawalPw) {
+                showFeedback(withdrawalPwFeedback, "New withdrawal passwords do not match.", true);
+                return;
+            }
+            if (newWithdrawalPw.length < 4) {
+                showFeedback(withdrawalPwFeedback, "Withdrawal password must be at least 4 characters.", true);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/user/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({
+                        loginPwForWithdrawal: loginPw,
+                        newWithdrawalPassword: newWithdrawalPw
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message);
+                showFeedback(withdrawalPwFeedback, data.message);
+                withdrawalPwForm.reset();
+            } catch (error) {
+                showFeedback(withdrawalPwFeedback, error.message, true);
+            }
+        });
+      });
+    </script>
+  </body>
+</html>

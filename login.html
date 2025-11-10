@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Align to top for consistency */
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+      }
+      .content-container {
+        width: 100%;
+        max-width: 420px; /* Match register page width */
+        background: white;
+        padding: 2rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+      }
+      .login-form {
+        margin: 1.5rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem; /* Match register page gap */
+        text-align: left;
+      }
+      .form-group {
+        position: relative;
+      }
+      .login-form label {
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+      .login-form input {
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+      }
+      .login-form input:focus {
+        outline: none;
+        border-color: chocolate;
+      }
+      .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 40px; /* Adjust based on label height and input padding */
+        cursor: pointer;
+        color: #888;
+        width: 20px;
+        height: 20px;
+      }
+      .password-toggle:hover {
+        color: #333;
+      }
+      .login-form button {
+        padding: 0.75rem;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px; /* Slightly more rounded */
+        cursor: pointer;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+      .login-form button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+      }
+      .register-link {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 2rem;
+      }
+      .register-link a {
+        color: #28a745;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .form-options {
+        text-align: left; /* Align with other elements */
+        font-size: 0.9rem;
+        margin-top: -0.75rem; /* Adjust spacing */
+      }
+      .form-options a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .dev-link {
+        margin-top: 2rem;
+        font-size: 0.8rem;
+      }
+      .dev-link a {
+        color: #dc3545;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-container">
+      <h1>Log In</h1>
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label for="mobileNumber">Mobile Number:</label>
+          <input type="tel" id="mobileNumber" name="mobileNumber" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+          <svg class="password-toggle" id="togglePassword" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z"
+            />
+          </svg>
+        </div>
+
+        <div class="form-options">
+          <a href="forgot-password.html">Forgot Password?</a>
+        </div>
+
+        <button type="submit">Log In</button>
+      </form>
+      <p class="register-link">
+        Don't have an account? <a href="register.html">Register</a>
+      </p>
+      <p class="dev-link">
+        <a href="#" id="clearDataLink">Clear all user data (for testing)</a>
+      </p>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // --- Password Toggle Logic ---
+        function setupPasswordToggle(toggleId, passwordId) {
+          const toggle = document.getElementById(toggleId);
+          const passwordInput = document.getElementById(passwordId);
+          const eyeOpen =
+            '<path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z" />';
+          const eyeClosed =
+            '<path fill="currentColor" d="M12,17.5C14.3,17.5 16.3,16.3 17.6,14.5L16.1,13.4C15.2,14.8 13.7,15.5 12,15.5C10.3,15.5 8.8,14.8 7.9,13.4L6.4,14.5C7.7,16.3 9.7,17.5 12,17.5M22.1,12.5C20.4,15.9 16.6,18.5 12,18.5C7.4,18.5 3.6,15.9 1.9,12.5L3.4,11.6C4.8,14.4 8.1,16.5 12,16.5C15.9,16.5 19.2,14.4 20.6,11.6L22.1,12.5M12,6.5C9.7,6.5 7.7,7.7 6.4,9.5L7.9,10.6C8.8,9.2 10.3,8.5 12,8.5C13.7,8.5 15.2,9.2 16.1,10.6L17.6,9.5C16.3,7.7 14.3,6.5 12,6.5M1.9,11.5C3.6,8.1 7.4,5.5 12,5.5C16.6,5.5 20.4,8.1 22.1,11.5L20.6,12.4C19.2,9.6 15.9,7.5 12,7.5C8.1,7.5 4.8,9.6 3.4,12.4L1.9,11.5Z" />';
+
+          toggle.addEventListener("click", function () {
+            const type =
+              passwordInput.getAttribute("type") === "password"
+                ? "text"
+                : "password";
+            passwordInput.setAttribute("type", type);
+            toggle.innerHTML = type === "password" ? eyeOpen : eyeClosed;
+          });
+        }
+        setupPasswordToggle("togglePassword", "password");
+
+        const form = document.getElementById("loginForm");
+        form.addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const mobileNumber = document.getElementById("mobileNumber").value;
+          const password = document.getElementById("password").value;
+
+          try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mobileNumber, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+
+            // On successful login, store the token
+            localStorage.setItem('token', data.token);
+
+            // Redirect to the dashboard
+            window.location.href = "dashboard.html";
+          } catch (error) {
+            alert(`Login failed: ${error.message}`);
+          }
+        });
+
+        // --- Clear Data Logic (for testing) ---
+        const clearDataLink = document.getElementById("clearDataLink");
+        clearDataLink.addEventListener("click", async function (event) {
+          event.preventDefault();
+          if (
+            confirm(
+              "Are you sure you want to clear ALL data from the database? This is a destructive action and cannot be undone."
+            )
+          ) {
+            try {
+              const response = await fetch('http://localhost:5000/api/admin/clear-all-data', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ secret: 'FASTER_CAR_RESET_2024' })
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                  throw new Error(data.message || 'Failed to clear data.');
+              }
+              alert(data.message);
+            } catch (error) {
+              alert(`Error: ${error.message}`);
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
